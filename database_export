@@ -1,0 +1,15 @@
+def export_to_gsheet(df_final):
+  # opens the target google sheet (must already exist)
+  sh = gc.open(google_sheet_name) # <-- put here name of the google sheet (relevant for Steps 2, 3, 4 with google sheet interactions)
+  target_sheet_name = 'Edgar'
+  worksheet = sh.worksheet(target_sheet_name) # sh. worksheet was already defined and opened in Step 0
+
+  # clears existing content in the target sheet before uploading new data
+  worksheet.clear()
+
+  # uploads the df_final to the selected worksheet
+  set_with_dataframe(worksheet, df_final, include_index=False, include_column_header=True)
+
+  print("Exported to Google Sheet")
+
+  return
