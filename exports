@@ -1,0 +1,47 @@
+def plugging_in_gsheet(df_final):
+  # opens the company google sheet
+  sh = gc.open(google_sheet_name) # <-- put here name of the google sheet (relevant for Steps 2, 3, 4 with google sheet interactions)
+  ticker = df_final.iloc[0]["ticker"]
+  worksheet = sh.worksheet(ticker) # sh. worksheet was already defined and opened in Step 0
+
+  # defines sheet_ranges where to find row-/column index outside of the loop
+  range_date = worksheet.get("K3:ZZ4")
+  range_row = worksheet.get("C:C")
+
+  # loops through each row of the dataframe from step 2 - each row is one data point from the company financials
+  for rows in df_final.iterrows():
+
+    # FIND DATE IN LIST OF DATES FROM GS
+    hist_horizon = int(range_date[1][0].strip("()")) # from google sheets extracts how many historical years we have
+    date_list = []
+    count = 0
+    for row in range_date:
+      if count > hist_horizon: break
+      for cell in row:
+        #cell = datetime.strptime(cell,"%b/%Y")
+        date_list.append(cell)
+        count = count +1
+        if count > hist_horizon:
+          break
+    # GET DATE (COLUMN) INDEX
+    df_date = rows[1]["date"]
+    df_date = datetime.strptime(df_date,"%Y-%m-%d")
+    date_index = date_list.index(df_date.strftime("%b/%Y")) + 11 # column K-column C
+
+    # GET ROW INDEX
+    name = [rows[1]["name"]]
+    row_index = 0
+    for row in range_row:
+      row_index = row_index + 1
+      if row == name:
+        break
+
+    # transforms value to millions
+    value = rows[1]["value"]/10**6
+
+    # plugs in each row value into the correct date/column, and row index
+    worksheet.update_cell(row_index, date_index, value)
+
+  print("Inserted data points into google sheet")
+
+  return
