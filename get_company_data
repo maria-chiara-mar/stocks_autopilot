@@ -1,0 +1,40 @@
+def get_company_data(ticker, years):
+
+  c = Company(ticker)
+  tenk = c.get_filings(form="10-K") # get annual reports only
+
+  # for income statement - has detailed revenue breakdowns
+  latest = tenk.latest() # limited to last 3 years
+  xb = latest.xbrl()
+  inc = xb.statements.income_statement()
+
+  # for balance sheet and cash flow
+  latest2 = tenk.latest(years) # get x years of historical data
+  xb_years = XBRLS.from_filings(latest2)
+  stitched_statements = xb_years.statements # merge historical years
+  bs = xb_years.statements.balance_sheet()
+  cf = xb_years.statements.cashflow_statement()
+
+  # transformed into dataframes
+  df_inc = inc.to_dataframe()
+  df_bs = bs.to_dataframe()
+  df_cf = cf.to_dataframe()
+
+  # append the three stratements and drop unnecessary columns
+  df = pd.concat([df_inc, df_bs, df_cf])
+  df = df.drop(columns = ["level","abstract","dimension","balance","weight","preferred_sign","parent_concept"])
+  df['ticker'] = ticker # add ticker column
+
+  print("Extracted company data")
+
+  return df
+
+def unpivot_df(df):
+  # unpivot date and value columns to get flat file format
+  columns_tokeep = ["ticker", 'concept', 'label']
+  columns_tomelt = [col for col in df.columns if col not in columns_tokeep]
+  df = pd.melt(df, id_vars=columns_tokeep, value_vars=columns_tomelt, var_name='date', value_name='value')
+
+  print("Unpivoted company data")
+
+  return df
