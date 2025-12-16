@@ -1,0 +1,20 @@
+# EdgarTools imports
+from edgar import *
+from edgar.xbrl import XBRLS
+set_identity("kindemilvc@gmail.com") #email address here (auth for SEC)
+
+# Pandas / Datetime import
+import pandas as pd
+from datetime import datetime
+
+# Gspread for google sheet manipulation
+import gspread
+from gspread_dataframe import set_with_dataframe
+
+# Google authentification to access google sheets
+from google.colab import auth
+auth.authenticate_user()
+from google.auth import default
+creds, _ = default()
+gc = gspread.authorize(creds)
+google_sheet_name = "Stonks 3.0" # <-- put here name of the google sheet (relevant for Steps 2, 3, 4 with google sheet interactions)
