@@ -1,0 +1,22 @@
+def import_dictionary(df_financials):
+  # find dictionary
+  sh = gc.open(google_sheet_name) # <-- put here name of the google sheet (relevant for Steps 2, 3, 4 with google sheet interactions)
+  worksheet = sh.worksheet('Dictionary') # sh. worksheet was already defined and opened in Step 0
+
+  # gets all values from the worksheet
+  data_list = worksheet.get_all_values()
+
+  # create a dataframe from the list of lists, using the first row as headers
+  df_dictionary = pd.DataFrame(data_list[1:], columns=data_list[0])
+
+  # gets rid of other columns if accidentaly imported
+  columns_tokeep = ["ticker", "concept", "label", "name"]
+  df_dictionary = df_dictionary[columns_tokeep]
+
+  # joins df_dictionary and combined financial statements (inner merge)
+  common_keys = ['ticker', 'concept', 'label']
+  df_final = pd.merge(df_financials, df_dictionary, on=common_keys, how='inner')
+
+  print("Merged with dictionary")
+
+  return df_final
