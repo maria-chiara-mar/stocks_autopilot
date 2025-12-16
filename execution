@@ -1,0 +1,15 @@
+ticker = ""
+years = 3
+
+# Step 1 - gets company data
+df_financials = get_company_data(ticker, years) # execute only this function to get pivoted data - good for dictionary preparation
+df_financials_flat = unpivot_df(df_financials) # just unpivots the data
+
+# Step 2 - merges with dictionary
+df_final = import_dictionary(df_financials_flat)
+
+# Steps 3 (optional) - export df to google sheet
+export_to_gsheet(df_financials_flat)
+
+# Step 4 - plugs in data into company google sheet
+plugging_in_gsheet(df_final)
